@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Manage your FinanceFlow profile and security settings">
+    <title>Profile — FinanceFlow</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <h2>💎 FinanceFlow</h2>
+                <span>Finance Manager</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-item">
+                    <span class="icon">📊</span> Dashboard
+                </a>
+                <a href="/income" class="nav-item">
+                    <span class="icon">💰</span> Income
+                </a>
+                <a href="/expenses" class="nav-item">
+                    <span class="icon">💸</span> Expenses
+                </a>
+                <a href="/profile" class="nav-item active">
+                    <span class="icon">👤</span> Profile
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" class="nav-item" onclick="logout()">
+                    <span class="icon">🚪</span> Logout
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="page-header">
+                <div style="display:flex;align-items:center;gap:1rem;">
+                    <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+                    <h1>Profile Settings</h1>
+                </div>
+            </header>
+
+            <div class="page-body">
+                <div class="profile-grid">
+                    <!-- Profile Info -->
+                    <div class="profile-card">
+                        <h3>👤 Personal Information</h3>
+                        <form id="profileForm">
+                            <div class="form-group">
+                                <label for="name">Full Name</label>
+                                <input type="text" id="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Member Since</label>
+                                <input type="text" id="memberSince" disabled style="opacity:0.6;">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-full">Update Profile</button>
+                        </form>
+                    </div>
+
+                    <!-- Change Password -->
+                    <div class="profile-card">
+                        <h3>🔒 Change Password</h3>
+                        <form id="passwordForm">
+                            <div class="form-group">
+                                <label for="oldPassword">Current Password</label>
+                                <input type="password" id="oldPassword" placeholder="Enter current password" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="newPassword">New Password</label>
+                                <input type="password" id="newPassword" placeholder="Min. 6 characters" required minlength="6">
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmPassword">Confirm New Password</label>
+                                <input type="password" id="confirmPassword" placeholder="Re-enter new password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-full">Change Password</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/profile.js"></script>
+</body>
+</html>

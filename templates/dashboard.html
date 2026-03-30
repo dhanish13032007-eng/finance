@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FinanceFlow Dashboard — Your financial overview at a glance">
+    <title>Dashboard — FinanceFlow</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <h2>💎 FinanceFlow</h2>
+                <span>Finance Manager</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-item active">
+                    <span class="icon">📊</span> Dashboard
+                </a>
+                <a href="/income" class="nav-item">
+                    <span class="icon">💰</span> Income
+                </a>
+                <a href="/expenses" class="nav-item">
+                    <span class="icon">💸</span> Expenses
+                </a>
+                <a href="/profile" class="nav-item">
+                    <span class="icon">👤</span> Profile
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" class="nav-item" id="logoutBtn" onclick="logout()">
+                    <span class="icon">🚪</span> Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <div style="display:flex;align-items:center;gap:1rem;">
+                    <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+                    <h1>Dashboard</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-sm btn-outline" onclick="exportExpensesCSV()">📄 Export</button>
+                    <span id="userName" style="color:var(--text-secondary);font-size:0.9rem;"></span>
+                </div>
+            </header>
+
+            <div class="page-body">
+                <!-- Alerts Section -->
+                <div id="alertsContainer"></div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card income">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-label">Total Income</div>
+                        <div class="stat-value text-green" id="totalIncome">₹0</div>
+                        <div class="stat-sub" id="monthIncome">This month: ₹0</div>
+                    </div>
+                    <div class="stat-card expense">
+                        <div class="stat-icon">💸</div>
+                        <div class="stat-label">Total Expenses</div>
+                        <div class="stat-value text-red" id="totalExpenses">₹0</div>
+                        <div class="stat-sub" id="monthExpenses">This month: ₹0</div>
+                    </div>
+                    <div class="stat-card savings">
+                        <div class="stat-icon">🏦</div>
+                        <div class="stat-label">Net Savings</div>
+                        <div class="stat-value text-purple" id="netSavings">₹0</div>
+                        <div class="stat-sub" id="savingsPct">Savings: 0%</div>
+                    </div>
+                    <div class="stat-card budget">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-label">Monthly Savings</div>
+                        <div class="stat-value text-teal" id="monthSavings">₹0</div>
+                        <div class="stat-sub">Current month balance</div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <h3>📈 Income vs Expenses (6 Months)</h3>
+                        <div class="chart-container">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>🍩 Expense Breakdown (This Month)</h3>
+                        <div class="chart-container">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Budget Status -->
+                <div class="data-card" id="budgetSection" style="display:none;">
+                    <div class="card-header">
+                        <h3>🎯 Budget Status</h3>
+                        <button class="btn btn-sm btn-outline" onclick="openBudgetModal()">+ Set Budget</button>
+                    </div>
+                    <div style="padding:1.5rem;" id="budgetStatusContainer"></div>
+                </div>
+
+                <!-- Predictions -->
+                <div class="charts-row" id="predictionSection">
+                    <div class="prediction-card">
+                        <h3>🤖 Expense Prediction</h3>
+                        <div class="prediction-value text-red" id="predExpense">—</div>
+                        <div class="prediction-label">Predicted next month expenses</div>
+                        <div style="margin-top:0.75rem;" id="expTrend"></div>
+                        <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.5rem;" id="predExpMsg"></p>
+                    </div>
+                    <div class="prediction-card">
+                        <h3>💰 Savings Prediction</h3>
+                        <div class="prediction-value text-green" id="predSavings">—</div>
+                        <div class="prediction-label">Predicted next month savings</div>
+                        <div style="margin-top:0.75rem;" id="savTrend"></div>
+                        <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.5rem;" id="predSavMsg"></p>
+                    </div>
+                </div>
+
+                <!-- Insights -->
+                <div class="insights-section">
+                    <h2 style="font-size:1.15rem;margin-bottom:1rem;">💡 Smart Insights</h2>
+                    <div class="insights-grid" id="insightsGrid">
+                        <div class="loading-overlay"><div class="spinner"></div></div>
+                    </div>
+                </div>
+
+                <!-- Suggestions -->
+                <div class="data-card" id="suggestionsCard" style="display:none;">
+                    <div class="card-header"><h3>📝 Suggestions</h3></div>
+                    <div style="padding:1.25rem;">
+                        <ul class="suggestions-list" id="suggestionsList"></ul>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3>🕐 Recent Transactions</h3>
+                    </div>
+                    <div class="data-table-wrapper">
+                        <table class="data-table" id="recentTable">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Category/Source</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentBody">
+                                <tr><td colspan="5" class="empty-state">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Budget Modal -->
+    <div class="modal-overlay" id="budgetModal">
+        <div class="modal">
+            <h2>Set Category Budget</h2>
+            <form id="budgetForm">
+                <div class="form-group">
+                    <label for="budgetCategory">Category</label>
+                    <select id="budgetCategory" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="budgetLimit">Monthly Limit (₹)</label>
+                    <input type="number" id="budgetLimit" placeholder="e.g. 5000" required min="1">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeBudgetModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Budget</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

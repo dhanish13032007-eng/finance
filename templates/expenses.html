@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Track and manage your expenses in FinanceFlow">
+    <title>Expenses — FinanceFlow</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <h2>💎 FinanceFlow</h2>
+                <span>Finance Manager</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-item">
+                    <span class="icon">📊</span> Dashboard
+                </a>
+                <a href="/income" class="nav-item">
+                    <span class="icon">💰</span> Income
+                </a>
+                <a href="/expenses" class="nav-item active">
+                    <span class="icon">💸</span> Expenses
+                </a>
+                <a href="/profile" class="nav-item">
+                    <span class="icon">👤</span> Profile
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" class="nav-item" onclick="logout()">
+                    <span class="icon">🚪</span> Logout
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="page-header">
+                <div style="display:flex;align-items:center;gap:1rem;">
+                    <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+                    <h1>Expense Management</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-sm btn-outline" onclick="exportExpensesCSV()">📄 Export CSV</button>
+                    <button class="btn btn-sm btn-primary" onclick="openAddModal()">+ Add Expense</button>
+                </div>
+            </header>
+
+            <div class="page-body">
+                <!-- Summary -->
+                <div class="stats-grid">
+                    <div class="stat-card expense">
+                        <div class="stat-icon">💸</div>
+                        <div class="stat-label">Total Expenses</div>
+                        <div class="stat-value text-red" id="totalExpenses">₹0</div>
+                    </div>
+                    <div class="stat-card savings">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-label">Records</div>
+                        <div class="stat-value text-purple" id="totalRecords">0</div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filter-bar">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" id="filterStartDate">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" id="filterEndDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="filterCategory">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Min Amount</label>
+                        <input type="number" id="filterMinAmount" placeholder="₹0">
+                    </div>
+                    <div class="form-group">
+                        <label>Max Amount</label>
+                        <input type="number" id="filterMaxAmount" placeholder="₹∞">
+                    </div>
+                    <div class="form-group">
+                        <label>Keyword</label>
+                        <input type="text" id="filterKeyword" placeholder="Search...">
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="applyFilters()" style="align-self:flex-end;">Filter</button>
+                    <button class="btn btn-secondary btn-sm" onclick="clearFilters()" style="align-self:flex-end;">Clear</button>
+                </div>
+
+                <!-- Expense Table -->
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3>Expense Records</h3>
+                        <span id="filterInfo" style="font-size:0.8rem;color:var(--text-muted);"></span>
+                    </div>
+                    <div class="data-table-wrapper">
+                        <table class="data-table" id="expenseTable">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expenseBody">
+                                <tr><td colspan="5"><div class="loading-overlay"><div class="spinner"></div></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Expense Modal -->
+    <div class="modal-overlay" id="expenseModal">
+        <div class="modal">
+            <h2 id="modalTitle">Add Expense</h2>
+            <form id="expenseForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" required></select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="amount">Amount (₹)</label>
+                        <input type="number" id="amount" placeholder="0.00" step="0.01" min="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description (Optional)</label>
+                    <textarea id="description" rows="2" placeholder="What was this expense for?"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">Add Expense</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/js/expenses.js"></script>
+</body>
+</html>
