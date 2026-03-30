@@ -4,7 +4,6 @@ Analyzes spending patterns using pandas to generate smart financial insights.
 """
 import pandas as pd
 import numpy as np
-import calendar
 from datetime import date, timedelta
 from collections import defaultdict
 
@@ -135,18 +134,6 @@ def generate_insights(expenses_list, incomes_list, budgets_list):
                     'title': f'Budget Warning: {budget.category}',
                     'message': f'You\'ve used {utilization:.0f}% of your {budget.category} budget (₹{cat_spent:,.2f} / ₹{budget.limit_amount:,.2f}).'
                 })
-            else:
-                days_in_month = calendar.monthrange(today.year, today.month)[1]
-                days_passed = today.day
-                if 0 < days_passed <= days_in_month:
-                    daily_rate = cat_spent / days_passed
-                    projected = cat_spent + daily_rate * (days_in_month - days_passed)
-                    if projected > budget.limit_amount:
-                        alerts.append({
-                            'type': 'warning',
-                            'title': f'Predicted Overage: {budget.category}',
-                            'message': f'At current rate, you\'ll spend ₹{projected:,.2f} (Limit: ₹{budget.limit_amount:,.0f}). Slow down!'
-                        })
 
     # --- 5. Savings insight ---
     if incomes_list:
@@ -177,33 +164,10 @@ def generate_insights(expenses_list, incomes_list, budgets_list):
                 'icon': '📅'
             })
 
-    # --- 7. Monthly narrative summary ---
-    narrative = "Not enough data for a summary."
-    inc_this_month = sum(i.amount for i in incomes_list if i.date.month == today.month and i.date.year == today.year)
-    exp_this_month = sum(e.amount for e in expenses_list if e.date.month == today.month and e.date.year == today.year)
-    
-    if inc_this_month > 0 or exp_this_month > 0:
-        sav_this_month = inc_this_month - exp_this_month
-        sav_rate = (sav_this_month / inc_this_month * 100) if inc_this_month > 0 else 0
-        current_month_name = today.strftime('%B %Y')
-        
-        narrative = f"In {current_month_name}, you earned ₹{inc_this_month:,.0f} and spent ₹{exp_this_month:,.0f}, saving ₹{sav_this_month:,.0f} ({sav_rate:.0f}%). "
-        
-        if total_exp > 0:
-            narrative += f"Your top expense was {cat_totals.index[0]} at ₹{cat_totals.iloc[0]:,.0f}. "
-            
-        days_in_month = calendar.monthrange(today.year, today.month)[1]
-        days_passed = today.day
-        if 0 < days_passed <= days_in_month and exp_this_month > 0:
-            daily_rate = exp_this_month / days_passed
-            proj_total = exp_this_month + daily_rate * (days_in_month - days_passed)
-            narrative += f"At your current daily spend rate of ₹{daily_rate:,.0f}, you are predicted to spend ₹{proj_total:,.0f} by month-end."
-
     return {
         'insights': insights,
         'alerts': alerts,
         'suggestions': suggestions,
-        'narrative': narrative,
         'summary': {
             'total_expenses': round(total_exp, 2),
             'num_categories': len(cat_totals),

@@ -1100,3 +1100,90 @@ a:hover {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--primary);
 }
+
+/* ══════════════════════════════════
+   INTELLIGENCE UPGRADE STYLES
+   ══════════════════════════════════ */
+
+/* Delta Badges */
+.delta-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 999px;
+    margin-right: 0.4rem;
+}
+
+.badge-neutral {
+    background: rgba(167, 165, 198, 0.15);
+    color: var(--text-secondary);
+}
+
+/* Skeletons */
+.skeleton {
+    background: linear-gradient(90deg, var(--bg-card) 25%, rgba(108, 92, 231, 0.1) 50%, var(--bg-card) 75%);
+    background-size: 200% 100%;
+    animation: placeholderShimmer 2s infinite linear;
+    border-radius: var(--radius-sm);
+    color: transparent !important;
+}
+
+.skeleton-text {
+    height: 1rem;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--bg-card-hover) 25%, rgba(108, 92, 231, 0.1) 50%, var(--bg-card-hover) 75%);
+    background-size: 200% 100%;
+    animation: placeholderShimmer 2s infinite linear;
+    margin-bottom: 0.5rem;
+}
+
+@keyframes placeholderShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Summary Banner */
+.summary-banner {
+    background: linear-gradient(to right, rgba(108, 92, 231, 0.15), rgba(0, 206, 201, 0.1));
+    border-left: 4px solid var(--primary);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.summary-banner p {
+    margin: 0;
+}
+
+/* What-If Slider */
+.range-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: rgba(108, 92, 231, 0.2);
+    border-radius: 999px;
+    outline: none;
+    margin-top: 1rem;
+}
+
+.range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent-teal);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 206, 201, 0.5);
+    transition: transform 0.2s;
+}
+
+.range-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}

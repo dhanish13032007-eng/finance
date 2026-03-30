@@ -28,6 +28,28 @@ function showToast(message, type = 'success') {
     setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3500);
 }
 
+function setDeltaBadge(id, pct, diff, reverseColors = false) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('skeleton');
+    if (diff === 0) {
+        el.className = 'delta-badge badge-neutral';
+        el.innerHTML = `<span>0%</span>`;
+        return;
+    }
+    const isPositive = diff > 0;
+    const icon = isPositive ? '▲' : '▼';
+    
+    // For income/savings, positive is good (green). For expenses, positive is bad (red)
+    let colorClass = isPositive ? 'badge-green' : 'badge-red';
+    if (reverseColors) {
+        colorClass = isPositive ? 'badge-red' : 'badge-green';
+    }
+    
+    el.className = `delta-badge ${colorClass}`;
+    el.innerHTML = `<span>${icon} ${Math.abs(pct)}%</span>`;
+}
+
 function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -67,13 +89,31 @@ async function loadDashboard() {
         const d = data.data;
 
         // Stats cards
-        document.getElementById('totalIncome').textContent = fmt(d.totals.total_income);
-        document.getElementById('totalExpenses').textContent = fmt(d.totals.total_expenses);
-        document.getElementById('netSavings').textContent = fmt(d.totals.net_savings);
-        document.getElementById('savingsPct').textContent = `Savings: ${d.totals.savings_percentage}%`;
-        document.getElementById('monthIncome').textContent = `This month: ${fmt(d.current_month.income)}`;
-        document.getElementById('monthExpenses').textContent = `This month: ${fmt(d.current_month.expenses)}`;
-        document.getElementById('monthSavings').textContent = fmt(d.current_month.savings);
+        document.getElementById('monthIncome').innerHTML = fmt(d.current_month.income);
+        document.getElementById('monthExpenses').innerHTML = fmt(d.current_month.expenses);
+        document.getElementById('monthSavings').innerHTML = fmt(d.current_month.savings);
+        document.getElementById('savingsPct').textContent = `${d.totals.savings_percentage}% Rate`;
+
+        // Deltas
+        const incD = d.current_month.income - d.current_month.prev_income;
+        const expD = d.current_month.expenses - d.current_month.prev_expenses;
+        const savD = d.current_month.savings - d.current_month.prev_savings;
+
+        const incPct = d.current_month.prev_income ? (incD/d.current_month.prev_income*100).toFixed(1) : 0;
+        const expPct = d.current_month.prev_expenses ? (expD/d.current_month.prev_expenses*100).toFixed(1) : 0;
+        const savPct = d.current_month.prev_savings ? (savD/d.current_month.prev_savings*100).toFixed(1) : 0;
+
+        setDeltaBadge('incomeDelta', incPct, incD, false);
+        setDeltaBadge('expenseDelta', expPct, expD, true); // true = higher is worse
+        setDeltaBadge('savingsDelta', savPct, savD, false);
+
+        // Populate what-if categories
+        const whatifSel = document.getElementById('whatifCategory');
+        if (whatifSel && d.category_breakdown.length) {
+            whatifSel.innerHTML = '<option value="">-- Select Category --</option>' + 
+                d.category_breakdown.map(c => `<option value="${c.category}">${c.category} (₹${Math.round(c.total)})</option>`).join('');
+            document.getElementById('whatifSlider').disabled = false;
+        }
 
         // Trend chart
         renderTrendChart(d.monthly_trends);
@@ -283,6 +323,14 @@ async function loadInsights() {
             ).join('');
         }
 
+        // Narrative Summary
+        const summaryBanner = document.getElementById('summaryBanner');
+        if (d.narrative) {
+            summaryBanner.innerHTML = `<p>${d.narrative}</p>`;
+        } else {
+            summaryBanner.style.display = 'none';
+        }
+
         // Insight cards
         const grid = document.getElementById('insightsGrid');
         if (d.insights && d.insights.length) {
@@ -381,6 +429,65 @@ function exportExpensesCSV() {
             URL.revokeObjectURL(url);
         })
         .catch(() => showToast('Export failed', 'error'));
+}
+
+// ══════════════════════════════════
+//  WHAT-IF SIMULATOR
+// ══════════════════════════════════
+const whatifSlider = document.getElementById('whatifSlider');
+const whatifCategory = document.getElementById('whatifCategory');
+
+if (whatifSlider) {
+    whatifSlider.addEventListener('input', (e) => {
+        const pct = e.target.value;
+        document.getElementById('whatifPercentLabel').textContent = `${pct}%`;
+        calculateWhatIf();
+    });
+}
+
+if (whatifCategory) {
+    whatifCategory.addEventListener('change', calculateWhatIf);
+}
+
+async function calculateWhatIf() {
+    if (!whatifCategory || !whatifSlider) return;
+    const category = whatifCategory.value;
+    const pct = parseInt(whatifSlider.value);
+    const resultsDiv = document.getElementById('whatifResults');
+
+    if (!category || pct === 0) {
+        resultsDiv.style.display = 'none';
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API}/api/whatif`, {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({ category, reduce_by_percent: pct })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+            const r = data.data;
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:0.75rem;">
+                    <span style="color:var(--text-secondary);">Reduction Amount:</span>
+                    <strong class="text-green">₹${Math.round(r.reduction_amount).toLocaleString()}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:0.75rem;">
+                    <span style="color:var(--text-secondary);">Projected Savings:</span>
+                    <strong class="text-purple" style="font-size:1.1rem;">₹${Math.round(r.projected_savings).toLocaleString()} <span style="font-size:0.85rem; margin-left:0.3rem;" class="text-green">▲ ₹${Math.round(r.difference).toLocaleString()}</span></strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:var(--text-secondary);">Savings Rate:</span>
+                    <strong class="text-teal">${r.current_savings_rate}% → ${r.projected_savings_rate}%</strong>
+                </div>
+            `;
+        }
+    } catch (e) {
+        console.error('WhatIf error:', e);
+    }
 }
 
 // ── Initialize ──

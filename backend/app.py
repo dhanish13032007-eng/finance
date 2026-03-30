@@ -38,7 +38,6 @@ def create_app():
     from routes.reports import reports_bp
     from routes.prediction import prediction_bp
     from routes.insights import insights_bp
-    from routes.whatif import whatif_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(income_bp)
@@ -47,7 +46,6 @@ def create_app():
     app.register_blueprint(reports_bp)
     app.register_blueprint(prediction_bp)
     app.register_blueprint(insights_bp)
-    app.register_blueprint(whatif_bp)
 
     # --- Budget API (inline for simplicity) ---
     from flask import request, jsonify

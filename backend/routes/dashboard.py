@@ -43,28 +43,6 @@ def get_dashboard():
     month_income = float(month_income)
     month_expenses = float(month_expenses)
 
-    # --- Previous month totals ---
-    prev_month_val = today.month - 1
-    prev_year = today.year
-    if prev_month_val == 0:
-        prev_month_val = 12
-        prev_year -= 1
-
-    prev_month_income = db.session.query(func.coalesce(func.sum(Income.amount), 0)).filter(
-        Income.user_id == user_id,
-        extract('month', Income.date) == prev_month_val,
-        extract('year', Income.date) == prev_year
-    ).scalar()
-
-    prev_month_expenses = db.session.query(func.coalesce(func.sum(Expense.amount), 0)).filter(
-        Expense.user_id == user_id,
-        extract('month', Expense.date) == prev_month_val,
-        extract('year', Expense.date) == prev_year
-    ).scalar()
-
-    prev_month_income = float(prev_month_income)
-    prev_month_expenses = float(prev_month_expenses)
-
     # --- Monthly trends (last 6 months) ---
     monthly_trends = []
     for i in range(5, -1, -1):
@@ -156,10 +134,7 @@ def get_dashboard():
         'current_month': {
             'income': round(month_income, 2),
             'expenses': round(month_expenses, 2),
-            'savings': round(month_income - month_expenses, 2),
-            'prev_income': round(prev_month_income, 2),
-            'prev_expenses': round(prev_month_expenses, 2),
-            'prev_savings': round(prev_month_income - prev_month_expenses, 2)
+            'savings': round(month_income - month_expenses, 2)
         },
         'monthly_trends': monthly_trends,
         'category_breakdown': categories,
