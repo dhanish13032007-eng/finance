@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Receipt — FinanceFlow</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .scan-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(108, 92, 231, 0.4);
+            border-radius: var(--radius-md);
+            padding: 3rem 2rem;
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition);
+            background: rgba(108, 92, 231, 0.03);
+            margin-bottom: 2rem;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary);
+            background: rgba(108, 92, 231, 0.08);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .upload-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .upload-btn:hover { background: var(--primary-dark); }
+        
+        #fileInput { display: none; }
+
+        .hidden { display: none !important; }
+
+        /* Scanning Loader */
+        .scan-loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3rem 0;
+        }
+        
+        .scan-loader .spinner {
+            width: 48px;
+            height: 48px;
+            border-width: 4px;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Result Form */
+        .result-form { text-align: left; }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .result-header h3 { font-size: 1.25rem; font-weight: 700; }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h2>💎 FinanceFlow</h2>
+            <span>Financial Intelligence</span>
+        </div>
+        <nav class="sidebar-nav">
+             <a href="/dashboard" class="nav-item">
+                <span class="icon">📊</span> Dashboard
+            </a>
+            <a href="/accounts" class="nav-item">
+                <span class="icon">🏦</span> Accounts
+            </a>
+            <a href="/goals" class="nav-item">
+                <span class="icon">🎯</span> Goals
+            </a>
+            <a href="/income" class="nav-item">
+                <span class="icon">💰</span> Income
+            </a>
+            <a href="/expenses" class="nav-item">
+                <span class="icon">💸</span> Expenses
+            </a>
+             <a href="/scan" class="nav-item active">
+                <span class="icon">📸</span> Scan Receipt
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <h1>Intelligent Receipt Scanner</h1>
+                <p style="color:var(--text-muted);font-size:0.85rem;">Upload a photo of a bill to auto-extract and categorize details.</p>
+            </div>
+             <a href="/expenses" class="btn btn-secondary">Back to Expenses</a>
+        </header>
+
+        <section class="page-body">
+            <div class="scan-container">
+                
+                <!-- Tabs -->
+                <div style="display:flex; gap:1rem; margin-bottom:2rem; justify-content:center;">
+                    <button id="tabReceipt" class="btn btn-primary" onclick="switchTab('receipt')">📸 Receipt Image</button>
+                    <button id="tabSMS" class="btn btn-secondary" onclick="switchTab('sms')">💬 Paste bank SMS</button>
+                </div>
+
+                <!-- Step 1: Upload Step -->
+                <div id="uploadStep">
+                    <div class="upload-area" id="dropArea">
+                        <div class="upload-icon">📸</div>
+                        <h3 style="margin-bottom:0.5rem;">Drag & Drop Receipt</h3>
+                        <p class="upload-text">or take a photo using your camera</p>
+                        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                            Choose File
+                        </button>
+                        <input type="file" id="fileInput" accept="image/*" capture="environment">
+                    </div>
+                </div>
+                
+                <!-- SMS Step -->
+                <div id="smsStep" class="hidden">
+                    <div class="form-group" style="text-align:left;">
+                        <label>Paste the bank SMS here:</label>
+                        <textarea id="smsText" rows="4" placeholder="Rs. 500.00 spent on your Card ending 1234 at Starbucks..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" style="width:100%;" onclick="processSMS()">Analyze SMS</button>
+                </div>
+
+                <!-- Step 2: Processing -->
+                <div id="processingStep" class="scan-loader hidden">
+                    <div class="spinner"></div>
+                    <h3>Scanning Receipt...</h3>
+                    <p style="color:var(--text-secondary);font-size:0.85rem;margin-top:0.5rem;">
+                        Our AI is extracting text and classifying the merchant.
+                    </p>
+                </div>
+
+                <!-- Step 3: Verify and Save -->
+                <div id="resultStep" class="result-form hidden">
+                    <div class="result-header">
+                        <h3>Verify Extracted Data</h3>
+                        <span class="status-pill safe" id="successPill">Success</span>
+                    </div>
+
+                    <form id="saveExpenseForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Amount (₹)</label>
+                                <input type="number" id="scannedAmount" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Date</label>
+                                <input type="date" id="scannedDate" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Merchant / Description</label>
+                                <input type="text" id="scannedMerchant" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Predicted Category</label>
+                                <select id="scannedCategory" required>
+                                    <option value="Food & Dining">Food & Dining</option>
+                                    <option value="Transportation">Transportation</option>
+                                    <option value="Housing">Housing</option>
+                                    <option value="Utilities">Utilities</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Shopping">Shopping</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Insurance">Insurance</option>
+                                    <option value="Savings & Investments">Savings & Investments</option>
+                                    <option value="Personal Care">Personal Care</option>
+                                    <option value="Travel">Travel</option>
+                                    <option value="Subscriptions">Subscriptions</option>
+                                    <option value="Gifts & Donations">Gifts & Donations</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" style="margin-top:1rem;">
+                            <label>Charge To Account</label>
+                            <select id="scannedAccount" required>
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="resetScanner()" style="flex:1;">Cancel / Scan Another</button>
+                            <button type="submit" class="btn btn-primary" style="flex:2;">Confirm & Save Expense</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </section>
+    </main>
+</div>
+
+<script src="/static/js/scan.js"></script>
+</body>
+</html>

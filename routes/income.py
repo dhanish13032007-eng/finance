@@ -49,6 +49,10 @@ def add_income():
         date=income_date,
         description=data.get('description', '').strip()
     )
+    
+    if data.get('account_id'):
+        income.account_id = data['account_id']
+        
     db.session.add(income)
     db.session.commit()
 

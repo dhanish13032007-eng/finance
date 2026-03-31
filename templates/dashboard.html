@@ -22,11 +22,20 @@
             <a href="/dashboard" class="nav-item active">
                 <span class="icon">📊</span> Dashboard
             </a>
+            <a href="/accounts" class="nav-item">
+                <span class="icon">🏦</span> Accounts
+            </a>
+            <a href="/goals" class="nav-item">
+                <span class="icon">🎯</span> Goals
+            </a>
             <a href="/income" class="nav-item">
                 <span class="icon">💰</span> Income
             </a>
             <a href="/expenses" class="nav-item">
                 <span class="icon">💸</span> Expenses
+            </a>
+            <a href="/scan" class="nav-item">
+                <span class="icon">📸</span> Scan Receipt
             </a>
             <a href="/profile" class="nav-item">
                 <span class="icon">👤</span> Profile
@@ -49,7 +58,22 @@
                     <p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.1rem;" id="headerDate"></p>
                 </div>
             </div>
-            <div class="header-actions">
+            <div class="header-actions" style="display:flex;align-items:center;gap:1rem;">
+                <!-- Notification Bell -->
+                <div style="position:relative;cursor:pointer;" onclick="toggleNotifications()">
+                    <span style="font-size:1.4rem;">🔔</span>
+                    <span id="notifBadge" style="position:absolute;top:-5px;right:-8px;background:var(--accent-red);color:white;font-size:0.6rem;padding:2px 6px;border-radius:999px;font-weight:bold;display:none;">0</span>
+                    
+                    <!-- Notification Dropdown -->
+                    <div id="notifDropdown" class="hidden" style="position:absolute;top:30px;right:0;width:320px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);z-index:100;max-height:400px;overflow-y:auto;padding:1rem;">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:1rem;border-bottom:1px solid var(--border-color);padding-bottom:0.5rem;">
+                            <span style="font-weight:700;">Alerts</span>
+                            <button onclick="markAllNotificationsRead(); event.stopPropagation();" style="background:none;border:none;color:var(--primary-light);font-size:0.75rem;cursor:pointer;">Mark all read</button>
+                        </div>
+                        <div id="notifList"></div>
+                    </div>
+                </div>
+
                 <button class="btn btn-sm btn-outline" onclick="exportExpensesCSV()">📄 Export</button>
                 <span id="userName" style="color:var(--text-secondary);font-size:0.9rem;"></span>
             </div>
@@ -60,20 +84,31 @@
             <!-- ① Smart Alert Bar -->
             <div id="alertsContainer"></div>
 
-            <!-- ② Top Issue Card -->
+            <!-- ② Top Issue Highlight -->
             <div id="topIssueContainer"></div>
 
-            <!-- ③ Monthly Smart Summary -->
-            <div class="summary-card" id="summaryCard" style="display:none;">
-                <div class="summary-card-icon">📋</div>
-                <div class="summary-card-body">
-                    <div class="summary-card-label">Monthly Intelligence Summary</div>
-                    <p id="summaryNarrative" class="summary-card-text"></p>
+            <!-- ③ Smart Monthly Summary -->
+            <div id="summaryCard" class="summary-card" style="display:none;">
+                <div class="summary-card-icon">🧠</div>
+                <div style="flex:1;">
+                    <div class="summary-card-label">Smart AI Summary</div>
+                    <p id="summaryNarrative" class="summary-card-text skeleton-text skeleton"></p>
                 </div>
             </div>
 
-            <!-- ④ KPI Stats Row -->
-            <div class="stats-grid" id="statsGrid">
+            <!-- ④ Net Worth & KPI Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card" style="background: linear-gradient(135deg, rgba(162,155,254,0.1), rgba(108,92,231,0.05)); border:1px solid rgba(162,155,254,0.3);">
+                    <div class="stat-header">
+                        <span class="stat-title" style="color:var(--primary-light)">Total Net Worth</span>
+                        <div class="stat-icon" style="background:rgba(108,92,231,0.2)">💎</div>
+                    </div>
+                    <h2 class="stat-value skeleton" id="netWorthAmount">₹0.00</h2>
+                    <div class="stat-trend">
+                        <span id="netWorthDelta" class="delta-badge skeleton"></span>
+                        <span class="stat-period">vs last month</span>
+                    </div>
+                </div>
                 <div class="stat-card income">
                     <div class="stat-icon">💰</div>
                     <div class="stat-label">Income (This Month)</div>

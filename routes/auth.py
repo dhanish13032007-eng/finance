@@ -6,12 +6,16 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import (
     create_access_token, jwt_required, get_jwt_identity
 )
-from flask_bcrypt import Bcrypt
 from models import db, User
 from utils.helpers import validate_required_fields, success_response, error_response
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
-bcrypt = Bcrypt()
+
+
+def _get_bcrypt():
+    """Return the shared Bcrypt instance from app.py."""
+    from app import bcrypt
+    return bcrypt
 
 
 @auth_bp.route('/register', methods=['POST'])
@@ -36,6 +40,7 @@ def register():
         return error_response('Email already registered', 409)
 
     # Hash password and create user
+    bcrypt = _get_bcrypt()
     hashed_pw = bcrypt.generate_password_hash(data['password']).decode('utf-8')
     user = User(
         name=data['name'].strip(),
@@ -59,6 +64,7 @@ def login():
     email = data['email'].strip().lower()
     user = User.query.filter_by(email=email).first()
 
+    bcrypt = _get_bcrypt()
     if not user or not bcrypt.check_password_hash(user.password, data['password']):
         return error_response('Invalid email or password', 401)
 
@@ -75,7 +81,7 @@ def login():
 def get_profile():
     """Get the current user's profile."""
     user_id = int(get_jwt_identity())
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return error_response('User not found', 404)
     return success_response(user.to_dict())
@@ -86,7 +92,7 @@ def get_profile():
 def update_profile():
     """Update user's name and/or email."""
     user_id = int(get_jwt_identity())
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return error_response('User not found', 404)
 
@@ -113,7 +119,7 @@ def update_profile():
 def change_password():
     """Change password (requires old password verification)."""
     user_id = int(get_jwt_identity())
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return error_response('User not found', 404)
 
@@ -122,6 +128,7 @@ def change_password():
     if not valid:
         return error_response(msg)
 
+    bcrypt = _get_bcrypt()
     if not bcrypt.check_password_hash(user.password, data['old_password']):
         return error_response('Current password is incorrect', 401)
 

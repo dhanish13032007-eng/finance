@@ -65,6 +65,41 @@ function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
 }
 
+// Notifications
+function toggleNotifications() {
+    const d = document.getElementById('notifDropdown');
+    d.classList.toggle('hidden');
+    if (!d.classList.contains('hidden')) loadNotificationsList();
+}
+
+async function loadNotificationsList() {
+    try {
+        const res = await fetch(`${API}/api/notifications`, { headers: authHeaders() });
+        const data = await res.json();
+        const list = document.getElementById('notifList');
+        if (!data.data.notifications.length) {
+            list.innerHTML = '<div style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:1rem;">No alerts right now.</div>';
+            return;
+        }
+        
+        list.innerHTML = data.data.notifications.map(n => `
+            <div style="padding:0.75rem 0; border-bottom:1px solid rgba(108,92,231,0.05); ${!n.is_read ? 'background:rgba(225,112,85,0.03);' : ''}">
+                <div style="font-size:0.8rem;font-weight:700;margin-bottom:0.2rem;color:var(--primary-dark)">${n.title}</div>
+                <div style="font-size:0.75rem;color:var(--text-secondary);line-height:1.4;">${n.message}</div>
+            </div>
+        `).join('');
+    } catch {}
+}
+
+async function markAllNotificationsRead() {
+    try {
+        await fetch(`${API}/api/notifications/read-all`, { method: 'PUT', headers: authHeaders() });
+        document.getElementById('notifBadge').style.display = 'none';
+        document.getElementById('notifBadge').textContent = '0';
+        loadNotificationsList();
+    } catch {}
+}
+
 // Chart instances
 let trendChart = null;
 
@@ -101,8 +136,19 @@ async function loadDashboard() {
         document.getElementById('monthIncome').innerHTML = fmt(d.current_month.income);
         document.getElementById('monthExpenses').innerHTML = fmt(d.current_month.expenses);
         document.getElementById('monthSavings').innerHTML = fmt(d.current_month.savings);
-        document.getElementById('savingsPct').textContent =
-            `${d.totals.savings_percentage}% Rate`;
+        document.getElementById('savingsPct').textContent = `${d.totals.savings_percentage}% Rate`;
+        
+        document.getElementById('netWorthAmount').innerHTML = fmt(d.totals.net_worth);
+        setDeltaBadge('netWorthDelta', 0, 0, false); // Placeholder for delta
+        
+        document.getElementById('netWorthAmount').classList.remove('skeleton');
+
+        // Notification Badge Update
+        if (d.totals.unread_notifications > 0) {
+            const b = document.getElementById('notifBadge');
+            b.style.display = 'block';
+            b.textContent = d.totals.unread_notifications;
+        }
 
         // Burn rate badge
         if (d.current_month.daily_burn > 0) {
@@ -800,8 +846,11 @@ function exportExpensesCSV() {
             const a = document.createElement('a');
             a.href = url;
             a.download = 'expenses.csv';
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
             URL.revokeObjectURL(url);
+            showToast('CSV exported!');
         })
         .catch(() => showToast('Export failed', 'error'));
 }

@@ -4,11 +4,12 @@ Full CRUD with advanced filtering (date range, category, amount range, keyword).
 """
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import db, Expense
+from models import db, Expense, Account
 from utils.helpers import (
     validate_required_fields, parse_date, success_response, error_response
 )
 from datetime import date
+from services.notification_service import on_expense_added
 
 expenses_bp = Blueprint('expenses', __name__, url_prefix='/api/expenses')
 
@@ -99,8 +100,15 @@ def add_expense():
         date=expense_date,
         description=data.get('description', '').strip()
     )
+    
+    if data.get('account_id'):
+        expense.account_id = data['account_id']
+        
     db.session.add(expense)
     db.session.commit()
+    
+    # Trigger AI / Smart Notifications
+    on_expense_added(expense)
 
     return success_response(expense.to_dict(), 'Expense added successfully', 201)
 

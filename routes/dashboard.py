@@ -11,7 +11,7 @@ Provides complete financial intelligence payload:
 """
 from flask import Blueprint
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import db, Income, Expense, Budget
+from models import db, Income, Expense, Budget, Account, Notification, Goal
 from utils.helpers import success_response, error_response
 from sqlalchemy import func, extract
 from datetime import date, timedelta
@@ -43,8 +43,16 @@ def get_dashboard():
         func.coalesce(func.sum(Expense.amount), 0)
     ).filter_by(user_id=user_id).scalar())
 
+    base_assets = float(db.session.query(
+        func.coalesce(func.sum(Account.balance), 0)
+    ).filter_by(user_id=user_id).scalar())
+
     net_savings = total_income - total_expenses
+    net_worth = base_assets + net_savings
     savings_pct = (net_savings / total_income * 100) if total_income > 0 else 0
+    
+    unread_notifications = Notification.query.filter_by(user_id=user_id, is_read=False).count()
+    active_goals = Goal.query.filter_by(user_id=user_id).count()
 
     # ── Current Month ──
     month_income = float(db.session.query(
@@ -258,7 +266,10 @@ def get_dashboard():
             'total_income': round(total_income, 2),
             'total_expenses': round(total_expenses, 2),
             'net_savings': round(net_savings, 2),
-            'savings_percentage': round(savings_pct, 1)
+            'net_worth': round(net_worth, 2),
+            'savings_percentage': round(savings_pct, 1),
+            'unread_notifications': unread_notifications,
+            'active_goals': active_goals
         },
         'current_month': {
             'income': round(month_income, 2),

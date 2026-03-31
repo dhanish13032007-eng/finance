@@ -39,6 +39,10 @@ def create_app():
     from routes.prediction import prediction_bp
     from routes.insights import insights_bp
     from routes.whatif import whatif_bp
+    from routes.accounts import accounts_bp
+    from routes.goals import goals_bp
+    from routes.upload import upload_bp
+    from routes.notifications import notifications_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(income_bp)
@@ -48,6 +52,10 @@ def create_app():
     app.register_blueprint(prediction_bp)
     app.register_blueprint(insights_bp)
     app.register_blueprint(whatif_bp)
+    app.register_blueprint(accounts_bp)
+    app.register_blueprint(goals_bp)
+    app.register_blueprint(upload_bp)
+    app.register_blueprint(notifications_bp)
 
     # --- Budget API (inline for simplicity) ---
     from flask import request, jsonify
@@ -134,9 +142,30 @@ def create_app():
     def profile_page():
         return render_template('profile.html')
 
-    # Create database tables
+    @app.route('/scan')
+    def scan_page():
+        return render_template('scan.html')
+
+    @app.route('/accounts')
+    def accounts_page():
+        return render_template('accounts.html')
+
+    @app.route('/goals')
+    def goals_page():
+        return render_template('goals.html')
+
+    # Create database tables and default data
     with app.app_context():
         db.create_all()
+        
+        # Auto-create Default Main Account for existing users
+        from models import User, Account
+        users = User.query.all()
+        for u in users:
+            if Account.query.filter_by(user_id=u.id).count() == 0:
+                default_acc = Account(user_id=u.id, name="Main Bank", type="Bank", balance=0.0)
+                db.session.add(default_acc)
+        db.session.commit()
 
     return app
 

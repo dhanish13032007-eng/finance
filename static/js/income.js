@@ -35,6 +35,18 @@ function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
 }
 
+// ── Accounts ──
+async function loadAccounts() {
+    try {
+        const res = await fetch(`${API}/api/accounts`, { headers: authHeaders() });
+        const data = await res.json();
+        const sel = document.getElementById('account_id');
+        if (sel) {
+            sel.innerHTML = data.data.accounts.map(a => `<option value="${a.id}">${a.name} (${a.type})</option>`).join('');
+        }
+    } catch {}
+}
+
 // ══════════════════════════════════
 //  LOAD INCOME DATA
 // ══════════════════════════════════
@@ -149,6 +161,11 @@ document.getElementById('incomeForm').addEventListener('submit', async (e) => {
         description: document.getElementById('description').value.trim()
     };
 
+    const accSelect = document.getElementById('account_id');
+    if (accSelect && accSelect.value && !editId) {
+        payload.account_id = accSelect.value;
+    }
+
     if (!payload.source || !payload.amount || !payload.date) {
         showToast('Please fill all required fields', 'error');
         return;
@@ -226,5 +243,38 @@ function exportIncomeCSV() {
         .catch(() => showToast('Export failed', 'error'));
 }
 
+async function uploadCSV(inputEl, type) {
+    const file = inputEl.files[0];
+    if (!file) return;
+    
+    const account_id = prompt('Enter the internal Account ID to import to (default is 1 for Main Bank):', '1');
+    if (!account_id) { inputEl.value = ''; return; }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('account_id', account_id);
+
+    try {
+        const res = await fetch(`${API}/api/upload/csv`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+            showToast(data.message, 'success');
+            setTimeout(() => window.location.reload(), 1500);
+        } else {
+            showToast(data.message, 'error');
+        }
+    } catch {
+        showToast('CSV Upload Failed', 'error');
+    }
+    inputEl.value = '';
+}
+
 // ── Init ──
-document.addEventListener('DOMContentLoaded', loadIncome);
+document.addEventListener('DOMContentLoaded', () => {
+    loadAccounts();
+    loadIncome();
+});

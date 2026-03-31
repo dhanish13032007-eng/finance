@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts — FinanceFlow</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .accounts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .account-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .account-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .account-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .account-name { font-weight: 700; font-size: 1.1rem; }
+        .account-type {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.2rem 0.6rem;
+            background: rgba(108, 92, 231, 0.1);
+            color: var(--primary-light);
+            border-radius: 999px;
+            text-transform: uppercase;
+        }
+
+        .account-balance {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .account-actions {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: none;
+        }
+
+        .account-card:hover .account-actions { display: block; }
+        
+        .delete-btn {
+            background: rgba(225, 112, 85, 0.1);
+            color: var(--accent-red);
+            border: none;
+            padding: 0.4rem 0.6rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .delete-btn:hover { background: rgba(225, 112, 85, 0.2); }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 14, 23, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 400px;
+            padding: 2rem;
+            animation: fadeSlideUp 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h2>💎 FinanceFlow</h2>
+            <span>Financial Intelligence</span>
+        </div>
+        <nav class="sidebar-nav">
+             <a href="/dashboard" class="nav-item">
+                <span class="icon">📊</span> Dashboard
+            </a>
+            <a href="/accounts" class="nav-item active">
+                <span class="icon">🏦</span> Accounts
+            </a>
+            <a href="/goals" class="nav-item">
+                <span class="icon">🎯</span> Goals
+            </a>
+            <a href="/income" class="nav-item">
+                <span class="icon">💰</span> Income
+            </a>
+            <a href="/expenses" class="nav-item">
+                <span class="icon">💸</span> Expenses
+            </a>
+             <a href="/scan" class="nav-item">
+                <span class="icon">📸</span> Scan Receipt
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <h1>Accounts & Net Worth</h1>
+                <p style="color:var(--text-muted);font-size:0.85rem;" id="netWorthDisplay">Total Assets: ₹0.00</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal()">+ Add Account</button>
+        </header>
+
+        <section class="page-body">
+            <div id="accountsGrid" class="accounts-grid">
+                <!-- Reactively populated via JS -->
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- Add Account Modal -->
+<div class="modal" id="accountModal">
+    <div class="modal-content">
+        <h2 style="margin-bottom:1.5rem;font-size:1.25rem;">Add New Account</h2>
+        <form id="accountForm">
+            <div class="form-group">
+                <label>Account Name (e.g., HDFC Savings)</label>
+                <input type="text" id="accName" required>
+            </div>
+            <div class="form-group">
+                <label>Account Type</label>
+                <select id="accType" required>
+                    <option value="Bank">Bank Account</option>
+                    <option value="Wallet">Digital Wallet (PayTM/GPay)</option>
+                    <option value="Cash">Physical Cash</option>
+                    <option value="Credit Card">Credit Card</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Starting Balance (Optional) (₹)</label>
+                <input type="number" id="accBalance" step="0.01" value="0.00">
+            </div>
+            <div style="display:flex;gap:1rem;margin-top:2rem;">
+                <button type="button" class="btn btn-secondary" style="flex:1;" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" style="flex:1;">Save Account</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/static/js/accounts.js"></script>
+</body>
+</html>
