@@ -1187,3 +1187,497 @@ a:hover {
 .range-slider::-webkit-slider-thumb:hover {
     transform: scale(1.2);
 }
+
+/* ══════════════════════════════════════════════════════
+   INTELLIGENCE LAYER v2.0 — NEW COMPONENTS
+   ══════════════════════════════════════════════════════ */
+
+/* ── Section Heading ── */
+.section-heading {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    letter-spacing: 0.01em;
+}
+
+/* ── Monthly Smart Summary Card ── */
+.summary-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    background: linear-gradient(135deg, rgba(108,92,231,0.12), rgba(0,206,201,0.08));
+    border: 1px solid rgba(108,92,231,0.25);
+    border-left: 5px solid var(--primary);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.75rem;
+    animation: fadeSlideUp 0.5s ease;
+}
+
+.summary-card-icon {
+    font-size: 1.75rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+.summary-card-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--primary-light);
+    margin-bottom: 0.4rem;
+}
+
+.summary-card-text {
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+/* ── Top Issue Card ── */
+.top-issue-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: linear-gradient(135deg, rgba(225,112,85,0.1), rgba(253,121,168,0.07));
+    border: 1px solid rgba(225,112,85,0.3);
+    border-left: 5px solid var(--accent-red);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.75rem;
+    animation: fadeSlideUp 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.top-issue-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(225,112,85,0.06), transparent 70%);
+    pointer-events: none;
+}
+
+.top-issue-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 1rem;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--accent-red);
+    background: rgba(225,112,85,0.12);
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+}
+
+.top-issue-body {
+    flex: 1;
+}
+
+.top-issue-category {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--accent-red);
+    margin-bottom: 0.15rem;
+}
+
+.top-issue-amount {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.2;
+    margin-bottom: 0.4rem;
+}
+
+.top-issue-reason {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.6rem;
+}
+
+.top-issue-suggestion {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.83rem;
+    color: var(--accent-orange);
+    background: rgba(253,203,110,0.08);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+}
+
+.top-issue-pct {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--accent-red);
+    opacity: 0.85;
+    text-align: center;
+    line-height: 1.1;
+    flex-shrink: 0;
+    min-width: 80px;
+}
+
+.top-issue-pct small {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    display: block;
+}
+
+.tip-icon {
+    flex-shrink: 0;
+    font-size: 1rem;
+    margin-top: 0.05rem;
+}
+
+/* ── Status Pills ── */
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.18rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-left: 0.5rem;
+}
+
+.status-pill.safe {
+    background: rgba(0,184,148,0.12);
+    color: var(--accent-green);
+    border: 1px solid rgba(0,184,148,0.25);
+}
+
+.status-pill.warning {
+    background: rgba(253,203,110,0.12);
+    color: var(--accent-orange);
+    border: 1px solid rgba(253,203,110,0.25);
+}
+
+.status-pill.danger {
+    background: rgba(225,112,85,0.12);
+    color: var(--accent-red);
+    border: 1px solid rgba(225,112,85,0.25);
+}
+
+/* ── Smart Budget Items ── */
+.budget-smart-item {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    transition: var(--transition);
+}
+
+.budget-smart-item:last-child { margin-bottom: 0; }
+
+.budget-smart-item:hover {
+    border-color: var(--border-active);
+    transform: translateY(-1px);
+}
+
+.budget-smart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+}
+
+.budget-smart-amounts {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+}
+
+.budget-smart-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+.burn-rate-badge {
+    background: rgba(108,92,231,0.1);
+    color: var(--primary-light);
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.exhaust-info {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+}
+
+.budget-overshoot-warning {
+    margin-top: 0.6rem;
+    font-size: 0.78rem;
+    color: var(--accent-orange);
+    background: rgba(253,203,110,0.07);
+    padding: 0.4rem 0.75rem;
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--accent-orange);
+}
+
+/* ── Action Cards ── */
+.action-cards-section {
+    margin-bottom: 2rem;
+}
+
+.action-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.action-card {
+    background: rgba(108,92,231,0.06);
+    border: 1px solid rgba(108,92,231,0.2);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    transition: var(--transition);
+    cursor: default;
+    animation: fadeSlideUp 0.5s ease;
+}
+
+.action-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.action-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 0.75rem;
+}
+
+.action-priority {
+    font-size: 0.68rem;
+    font-weight: 800;
+    background: var(--bg-secondary);
+    color: var(--text-muted);
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+}
+
+.action-icon {
+    font-size: 1.25rem;
+}
+
+.action-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    flex: 1;
+    margin: 0;
+}
+
+.action-detail {
+    font-size: 0.83rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin: 0;
+}
+
+/* ── Behavior Analysis ── */
+.behavior-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.behavior-stat {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    text-align: center;
+    transition: var(--transition);
+}
+
+.behavior-stat:hover {
+    border-color: var(--border-active);
+}
+
+.behavior-stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.behavior-stat-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+.behavior-stat-value {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.behavior-stat-value span {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+/* ── Spike List ── */
+.spike-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.spike-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(225,112,85,0.05);
+    border: 1px solid rgba(225,112,85,0.15);
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 0.9rem;
+    font-size: 0.85rem;
+}
+
+.spike-date {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    min-width: 60px;
+}
+
+.spike-category {
+    flex: 1;
+    color: var(--text-secondary);
+    padding: 0 0.75rem;
+}
+
+.spike-amount {
+    font-weight: 700;
+}
+
+/* ── What-If Enhanced Results ── */
+.whatif-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.whatif-metric {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    text-align: center;
+}
+
+.whatif-metric-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.whatif-metric-old {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-decoration: line-through;
+}
+
+.whatif-metric-arrow {
+    font-size: 0.9rem;
+    color: var(--primary-light);
+    margin: 0.15rem 0;
+}
+
+.whatif-metric-new {
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin-bottom: 0.2rem;
+}
+
+.whatif-metric-gain {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-green);
+}
+
+.whatif-metric.yearly-impact {
+    background: linear-gradient(135deg, rgba(0,206,201,0.1), rgba(108,92,231,0.1));
+    border-color: rgba(0,206,201,0.3);
+}
+
+.yearly-gain {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--accent-teal);
+    margin: 0.5rem 0 0.25rem;
+}
+
+.yearly-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.whatif-narrative {
+    background: rgba(108,92,231,0.06);
+    border-left: 3px solid var(--primary);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    line-height: 1.55;
+}
+
+/* ── Responsive Adjustments ── */
+@media (max-width: 768px) {
+    .top-issue-card {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .top-issue-pct {
+        font-size: 1.5rem;
+    }
+    .whatif-grid {
+        grid-template-columns: 1fr;
+    }
+    .action-cards-grid {
+        grid-template-columns: 1fr;
+    }
+    .behavior-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .behavior-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .budget-smart-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.3rem;
+    }
+}
